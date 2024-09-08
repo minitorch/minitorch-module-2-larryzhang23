@@ -65,7 +65,8 @@ class TorchTrain:
 
             # Update
             loss.view(1).backward()
-
+            # print([p.grad for p in model.parameters()])
+            # import pdb; pdb.set_trace()
             for p in model.parameters():
                 if p.grad is not None:
                     p.data = p.data - learning_rate * (p.grad / float(data.N))
