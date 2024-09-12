@@ -269,7 +269,18 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # Create buffer
+        out_index = np.array(out_shape)
+        in_index = np.array(in_shape)
+        for i in range(len(out)):
+            # This is to create the out_index
+            to_index(i, out_shape, out_index)
+            broadcast_index(out_index, out_shape, in_shape, in_index)
+            # Find the correct position in in_storage
+            in_storage_idx = index_to_position(in_index, in_strides)
+            # Find the correct position in out_storage
+            out_storage_idx = index_to_position(out_index, out_strides)
+            out[out_storage_idx] = fn(in_storage[in_storage_idx])
 
     return _map
 
@@ -319,7 +330,21 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        out_index = np.array(out_shape)
+        a_in_index = np.array(a_shape)
+        b_in_index = np.array(b_shape)
+        for i in range(len(out)):
+            # This is to create the out_index
+            to_index(i, out_shape, out_index)
+            broadcast_index(out_index, out_shape, a_shape, a_in_index)
+            broadcast_index(out_index, out_shape, b_shape, b_in_index)
+            # Find the correct position in in_storage
+            a_in_storage_idx = index_to_position(a_in_index, a_strides)
+            b_in_storage_idx = index_to_position(b_in_index, b_strides)
+            val = fn(a_storage[a_in_storage_idx], b_storage[b_in_storage_idx])
+            # Find the correct position in out_storage
+            out_storage_idx = index_to_position(out_index, out_strides)
+            out[out_storage_idx] = val
 
     return _zip
 
@@ -355,7 +380,21 @@ def tensor_reduce(fn: Callable[[float, float], float]) -> Any:
         reduce_dim: int,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # create buffer
+        out_index = np.array(out_shape)
+
+        for i in range(len(out)):
+            to_index(i, out_shape, out_index)
+            out_postion = index_to_position(out_index, out_strides)
+            out_index[reduce_dim] = 0
+            a_position = index_to_position(out_index, a_strides)
+            val = a_storage[a_position]
+
+            for k in range(1, a_shape[reduce_dim]):
+                out_index[reduce_dim] = k
+                a_position = index_to_position(out_index, a_strides)
+                val = fn(val, a_storage[a_position])
+            out[out_postion] = val
 
     return _reduce
 

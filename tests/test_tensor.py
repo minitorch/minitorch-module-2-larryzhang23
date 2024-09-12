@@ -225,3 +225,17 @@ def test_reduce_forward_all_dims() -> None:
     t_summed_all_expected = tensor([27])
 
     assert_close(t_summed_all[0], t_summed_all_expected[0])
+
+
+@pytest.mark.task2_3
+def test_reduce_forward_one_dim_complex() -> None:
+    # shape (2, 3, 2)
+    t = tensor([[[2, 3], [4, 6], [5, 7]], [[1, 2], [2, 3], [3, 4]]])
+
+    # reduce the 1st dim, 3 -> nothing
+    t_summed = t.sum(1)
+
+    # shape (2, 1, 2)
+    t_summed_expected = tensor([[[11, 16]], [[6, 9]]])
+
+    assert t_summed.is_close(t_summed_expected).all().item()
